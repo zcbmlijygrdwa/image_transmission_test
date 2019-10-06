@@ -69,16 +69,14 @@ int main(int, char**)
     //for(;;)
     //{
     Mat frame;
+    Mat prev_frame;
     cap >> frame; // get a new frame from camera
+    frame.copyTo(prev_frame);
     cvtColor(frame, edges, COLOR_BGR2GRAY);
     //GaussianBlur(edges, edges, Size(7,7), 1.5, 1.5);
     //Canny(edges, edges, 0, 30, 3);
     imshow("frame", frame);
     waitKey(30);
-    //    if(waitKey(30) >= 0) break;
-    //}
-    // the camera will be deinitialized automatically in VideoCapture destructor
-
 
     //copyDataToPtr(edges,dataPtr);
 
@@ -86,58 +84,82 @@ int main(int, char**)
     int dataLen = 5;
     int x;
     int y;
-    float blue ;
-    float green;
-    float red  ;
+    float blue  = 0;
+    float green = 0;
+    float red   = 0;
+    float pre_blue  = 0;
+    float pre_green = 0;
+    float pre_red   = 0;
+
+    float diff = 0;
+    float threshold = 50;
+
+    int frameCount = 0;
     while(true)
     {
-    cap >> frame; // get a new frame from camera
-    cvtColor(frame, edges, COLOR_BGR2GRAY);
-    //GaussianBlur(edges, edges, Size(7,7), 1.5, 1.5);
-    //Canny(edges, edges, 0, 30, 3);
-    imshow("frame", frame);
-    waitKey(1);
+        cap >> frame; // get a new frame from camera
+        cvtColor(frame, edges, COLOR_BGR2GRAY);
+        //GaussianBlur(edges, edges, Size(7,7), 1.5, 1.5);
+        //Canny(edges, edges, 0, 30, 3);
+        imshow("frame", frame);
+        waitKey(1);
+        frameCount++;
+
         for(int x = 0 ; x < frame.cols ; ++x)
         {
             for(int y = 0 ; y < frame.rows ; ++y)
             {
-
                 blue  = frame.at<cv::Vec3b>(y,x)[0];
                 green = frame.at<cv::Vec3b>(y,x)[1];
                 red   = frame.at<cv::Vec3b>(y,x)[2];
-                //std::cout<<"blue = "<<blue<<std::endl;
-                //std::cout<<"green = "<<green<<std::endl;
-                //std::cout<<"red = "<<red<<std::endl;
-                //int 4 bytes and float 4 bytes...
-                // 2 ints and 3 floats = 20 bytes
-                // or same as the size of 5 floats
-                void * dataPtr = (void *) calloc(5,sizeof(float));
-                void * dataPtrBackup = dataPtr;
 
-                memcpy(dataPtr,&x,sizeof(float));
-                dataPtr += sizeof(float);
+                pre_blue  = prev_frame.at<cv::Vec3b>(y,x)[0];
+                pre_green = prev_frame.at<cv::Vec3b>(y,x)[1];
+                pre_red   = prev_frame.at<cv::Vec3b>(y,x)[2];
 
-                memcpy(dataPtr,&y,sizeof(float));
-                dataPtr += sizeof(float);
+                diff = 0;
+                diff += fabs(pre_blue - blue);
+                diff += fabs(pre_green - green);
+                diff += fabs(pre_red - red);
 
-                memcpy(dataPtr,&blue,sizeof(float));
-                dataPtr += sizeof(float);
+                if(frameCount%5==0 || diff>threshold)
+                {
 
-                memcpy(dataPtr,&green,sizeof(float));
-                dataPtr += sizeof(float);
+                    //std::cout<<"blue = "<<blue<<std::endl;
+                    //std::cout<<"green = "<<green<<std::endl;
+                    //std::cout<<"red = "<<red<<std::endl;
+                    //int 4 bytes and float 4 bytes...
+                    // 2 ints and 3 floats = 20 bytes
+                    // or same as the size of 5 floats
+                    void * dataPtr = (void *) calloc(5,sizeof(float));
+                    void * dataPtrBackup = dataPtr;
 
-                memcpy(dataPtr,&red,sizeof(float));
+                    memcpy(dataPtr,&x,sizeof(float));
+                    dataPtr += sizeof(float);
 
-                dataPtr = dataPtrBackup;
+                    memcpy(dataPtr,&y,sizeof(float));
+                    dataPtr += sizeof(float);
+
+                    memcpy(dataPtr,&blue,sizeof(float));
+                    dataPtr += sizeof(float);
+
+                    memcpy(dataPtr,&green,sizeof(float));
+                    dataPtr += sizeof(float);
+
+                    memcpy(dataPtr,&red,sizeof(float));
+
+                    dataPtr = dataPtrBackup;
 
 
-                sendto(sockfd, (const void *)dataPtr, dataLen*sizeof(float),
-                        MSG_CONFIRM, (const struct sockaddr *) &servaddr,
-                        sizeof(servaddr));
-                //std::cout<<"message for pixel("<<x<<","<<y<<")sent.\n";
-                delete(dataPtr);
+                    sendto(sockfd, (const void *)dataPtr, dataLen*sizeof(float),
+                            MSG_CONFIRM, (const struct sockaddr *) &servaddr,
+                            sizeof(servaddr));
+                    //std::cout<<"message for pixel("<<x<<","<<y<<")sent.\n";
+                    delete(dataPtr);
+                }
             }
         }
+        frame.copyTo(prev_frame);
     }
 
 

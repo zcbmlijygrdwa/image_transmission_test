@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/zhenyu/getCam/test_send.cpp
+/home/zhenyu/image_transmission_test/test_send.cpp
 stdio.h
 -
 stdlib.h
@@ -26,7 +26,7 @@ netinet/in.h
 bitset
 -
 opencv2/opencv.hpp
-/home/zhenyu/getCam/opencv2/opencv.hpp
+/home/zhenyu/image_transmission_test/opencv2/opencv.hpp
 
 /usr/local/include/opencv/cxcore.h
 opencv2/core/core_c.h

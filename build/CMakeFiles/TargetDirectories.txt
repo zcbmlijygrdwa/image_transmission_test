@@ -1,5 +1,5 @@
-/home/zhenyu/getCam/build/CMakeFiles/rebuild_cache.dir
-/home/zhenyu/getCam/build/CMakeFiles/edit_cache.dir
-/home/zhenyu/getCam/build/CMakeFiles/udp_server.dir
-/home/zhenyu/getCam/build/CMakeFiles/test_get_cam.dir
-/home/zhenyu/getCam/build/CMakeFiles/test_send.dir
+/home/zhenyu/image_transmission_test/build/CMakeFiles/rebuild_cache.dir
+/home/zhenyu/image_transmission_test/build/CMakeFiles/edit_cache.dir
+/home/zhenyu/image_transmission_test/build/CMakeFiles/udp_server.dir
+/home/zhenyu/image_transmission_test/build/CMakeFiles/test_get_cam.dir
+/home/zhenyu/image_transmission_test/build/CMakeFiles/test_send.dir
